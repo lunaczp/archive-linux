@@ -46,6 +46,12 @@ KEYBOARD = -DKBD_FINNISH -DKBDFLAGS=0
 # KEYBOARD = -DKDB_NO
 
 #
+# comment this line to turn off keyboard NUM LOCK
+#
+
+NUM_LOCK = -DKBD_NUMERIC_LOCK
+
+#
 # comment this line if you don't want the emulation-code
 #
 
@@ -112,7 +118,7 @@ linuxsubdirs: dummy
 
 Version:
 	@./makever.sh
-	@echo \#define UTS_RELEASE \"0.97.pl4-`cat .version`\" > tools/version.h
+	@echo \#define UTS_RELEASE \"0.97.pl5-`cat .version`\" > tools/version.h
 	@echo \#define UTS_VERSION \"`date +%D`\" >> tools/version.h
 	@echo \#define LINUX_COMPILE_TIME \"`date +%T`\" >> tools/version.h
 	@echo \#define LINUX_COMPILE_BY \"`whoami`\" >> tools/version.h
