@@ -1,9 +1,6 @@
 -bad 
 -bap 
--fca
--fc1 
--cdb 
--sc 
+-nfca
 -bl 
 -psl 
 -di16
