@@ -456,7 +456,7 @@ static void respond(int currcons, struct tty_struct * tty)
 		p++;
 	}
 	sti();
-	copy_to_cooked(tty);
+	TTY_READ_FLUSH(tty);
 }
 
 static void insert_char(int currcons)
@@ -823,7 +823,7 @@ void con_write(struct tty_struct * tty)
 
 void do_keyboard_interrupt(void)
 {
-	copy_to_cooked(TTY_TABLE(0));
+	TTY_READ_FLUSH(TTY_TABLE(0));
 	timer_active &= ~(1<<BLANK_TIMER);
 	if (console_blanked) {
 		timer_table[BLANK_TIMER].expires = 0;

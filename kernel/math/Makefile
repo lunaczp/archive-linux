@@ -10,18 +10,16 @@ AR	=ar
 AS	=as
 LD	=ld
 LDFLAGS	=-s -x
-CC	=gcc
-CFLAGS	=-Wall -O -fstrength-reduce -fomit-frame-pointer \
-	-finline-functions -nostdinc -I../../include
-CPP	=gcc -E -nostdinc -I../../include
+CC	=gcc -nostdinc -I../../include
+CPP	=cpp -nostdinc -I../../include
 
 .c.s:
-	$(CC) $(CFLAGS) \
+	$(CC) $(CFLAGS) $(MATH_EMULATION) \
 	-S -o $*.s $<
 .s.o:
 	$(AS) -c -o $*.o $<
 .c.o:
-	$(CC) $(CFLAGS) \
+	$(CC) $(CFLAGS) $(MATH_EMULATION) \
 	-c -o $*.o $<
 
 OBJS  = math_emulate.o error.o convert.o ea.o get_put.o \
