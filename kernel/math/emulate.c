@@ -1,5 +1,5 @@
 /*
- * linux/kernel/math/math_emulate.c
+ * linux/kernel/math/emulate.c
  *
  * (C) 1991 Linus Torvalds
  */

@@ -63,8 +63,8 @@ void release(struct task_struct * p)
 		return;
 	}
 	for (i=1 ; i<NR_TASKS ; i++)
-		if (task[i]==p) {
-			task[i]=NULL;
+		if (task[i] == p) {
+			task[i] = NULL;
 			/* Update links */
 			if (p->p_osptr)
 				p->p_osptr->p_ysptr = p->p_ysptr;
@@ -72,8 +72,7 @@ void release(struct task_struct * p)
 				p->p_ysptr->p_osptr = p->p_osptr;
 			else
 				p->p_pptr->p_cptr = p->p_osptr;
-			free_page((long)p);
-			schedule();
+			free_page((long) p);
 			return;
 		}
 	panic("trying to release non-existent task");
@@ -320,38 +319,28 @@ volatile void do_exit(long code)
 	 *	as a result of our exiting, and if they have any stopped
 	 *	jons, send them a SIGUP and then a SIGCONT.  (POSIX 3.2.2.2)
 	 */
-	if (p = current->p_cptr) {
-		while (1) {
-		        p->flags &= ~PF_PTRACED;
-			p->p_pptr = task[1];
-			if (p->state == TASK_ZOMBIE)
-				task[1]->signal |= (1<<(SIGCHLD-1));
-			/*
-			 * process group orphan check
-			 * Case ii: Our child is in a different pgrp 
-			 * than we are, and it was the only connection
-			 * outside, so the child pgrp is now orphaned.
-			 */
-			if ((p->pgrp != current->pgrp) &&
-			    (p->session == current->session) &&
-			    is_orphaned_pgrp(p->pgrp) &&
-			    has_stopped_jobs(p->pgrp)) {
-				kill_pg(p->pgrp,SIGHUP,1);
-				kill_pg(p->pgrp,SIGCONT,1);
-			}
-			if (p->p_osptr) {
-				p = p->p_osptr;
-				continue;
-			}
-			/*
-			 * This is it; link everything into init's children 
-			 * and leave 
-			 */
-			p->p_osptr = task[1]->p_cptr;
-			task[1]->p_cptr->p_ysptr = p;
-			task[1]->p_cptr = current->p_cptr;
-			current->p_cptr = 0;
-			break;
+	while (p = current->p_cptr) {
+		current->p_cptr = p->p_osptr;
+		p->p_ysptr = NULL;
+	        p->flags &= ~PF_PTRACED;
+		p->p_pptr = task[1];
+		p->p_osptr = task[1]->p_cptr;
+		task[1]->p_cptr->p_ysptr = p;
+		task[1]->p_cptr = p;
+		if (p->state == TASK_ZOMBIE)
+			task[1]->signal |= (1<<(SIGCHLD-1));
+		/*
+		 * process group orphan check
+		 * Case ii: Our child is in a different pgrp 
+		 * than we are, and it was the only connection
+		 * outside, so the child pgrp is now orphaned.
+		 */
+		if ((p->pgrp != current->pgrp) &&
+		    (p->session == current->session) &&
+		    is_orphaned_pgrp(p->pgrp) &&
+		    has_stopped_jobs(p->pgrp)) {
+			kill_pg(p->pgrp,SIGHUP,1);
+			kill_pg(p->pgrp,SIGCONT,1);
 		}
 	}
 	if (current->leader) {

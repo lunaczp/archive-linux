@@ -329,7 +329,7 @@ static int drive_busy(void)
 	unsigned int i;
 	unsigned char c;
 
-	for (i = 0; i < 50000; i++) {
+	for (i = 0; i < 500000 ; i++) {
 		c = inb_p(HD_STATUS);
 		c &= (BUSY_STAT | READY_STAT | SEEK_STAT);
 		if (c == (READY_STAT | SEEK_STAT))

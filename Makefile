@@ -8,8 +8,8 @@ MATH_EMULATION = -DKERNEL_MATH_EMULATION
 # uncomment the correct keyboard:
 #
 
-KEYBOARD = -DKBD_FINNISH
-# KEYBOARD = -DKBD_US
+# KEYBOARD = -DKBD_FINNISH
+KEYBOARD = -DKBD_US
 # KEYBOARD = -DKBD_GR
 # KEYBOARD = -DKBD_FR
 # KEYBOARD = -DKBD_UK
@@ -18,13 +18,13 @@ KEYBOARD = -DKBD_FINNISH
 #
 # uncomment this line if you are using gcc-1.40
 #
-#GCC_OPT = -fcombine-regs
+#GCC_OPT = -fcombine-regs -fstrength-reduce
 
 #
 # standard CFLAGS
 #
 
-CFLAGS =-Wall -O -fstrength-reduce -fomit-frame-pointer $(GCC_OPT)
+CFLAGS =-Wall -O6 -fomit-frame-pointer $(GCC_OPT)
 
 #
 # ROOT_DEV specifies the default root-device when making the image.
@@ -32,7 +32,7 @@ CFLAGS =-Wall -O -fstrength-reduce -fomit-frame-pointer $(GCC_OPT)
 # default of FLOPPY is used by 'build'.
 #
 
-ROOT_DEV = /dev/hdb1
+# ROOT_DEV = /dev/hdb1
 
 #
 # if you want the ram-disk device, define this to be the
@@ -67,7 +67,13 @@ LIBS		=lib/lib.a
 	$(CC) $(CFLAGS) \
 	-nostdinc -Iinclude -c -o $*.o $<
 
-all:	Image
+all:	Version Image
+
+Version:
+	@./makever.sh
+	@echo \#define UTS_RELEASE \"0.95c-`cat .version`\" > include/linux/config_rel.h
+	@echo \#define UTS_VERSION \"`date +%D`\" > include/linux/config_ver.h
+	touch include/linux/config.h
 
 Image: boot/bootsect boot/setup tools/system tools/build
 	cp tools/system system.tmp

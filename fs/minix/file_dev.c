@@ -49,6 +49,7 @@ int minix_readdir(struct inode * inode, struct file * filp, struct dirent * dire
 					put_fs_long(de->inode,&dirent->d_ino);
 					put_fs_byte(0,i+dirent->d_name);
 					put_fs_word(i,&dirent->d_reclen);
+					brelse(bh);
 					return i;
 				}
 			}

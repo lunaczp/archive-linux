@@ -26,6 +26,8 @@
 
 int kill_pg(int pgrp, int sig, int priv);
 int is_orphaned_pgrp(int pgrp);
+   
+extern void lp_init(void);   
 
 #define _L_FLAG(tty,f)	((tty)->termios.c_lflag & f)
 #define _I_FLAG(tty,f)	((tty)->termios.c_iflag & f)
@@ -46,6 +48,7 @@ int is_orphaned_pgrp(int pgrp);
 #define I_CRNL(tty)	_I_FLAG((tty),ICRNL)
 #define I_NOCR(tty)	_I_FLAG((tty),IGNCR)
 #define I_IXON(tty)	_I_FLAG((tty),IXON)
+#define I_STRP(tty)	_I_FLAG((tty),ISTRIP)
 
 #define O_POST(tty)	_O_FLAG((tty),OPOST)
 #define O_NLCR(tty)	_O_FLAG((tty),ONLCR)
@@ -139,6 +142,8 @@ void copy_to_cooked(struct tty_struct * tty)
 			break;
 		}
 		GETCH(tty->read_q,c);
+		if (I_STRP(tty))
+			c &= 0x7f;
 		if (c==13) {
 			if (I_CRNL(tty))
 				c=10;
@@ -153,8 +158,8 @@ void copy_to_cooked(struct tty_struct * tty)
 			    (c==KILL_CHAR(tty))) {
 				/* deal with killing the input line */
 				while(!(EMPTY(tty->secondary) ||
-				        (c=LAST(tty->secondary))==10 ||
-				        ((EOF_CHAR(tty) != _POSIX_VDISABLE) &&
+					(c=LAST(tty->secondary))==10 ||
+					((EOF_CHAR(tty) != _POSIX_VDISABLE) &&
 					 (c==EOF_CHAR(tty))))) {
 					if (L_ECHO(tty)) {
 						if (c<32)
@@ -215,7 +220,7 @@ void copy_to_cooked(struct tty_struct * tty)
 			}
 		}
 		if (c==10 || (EOF_CHAR(tty) != _POSIX_VDISABLE &&
-			      c==EOF_CHAR(tty)))
+		    c==EOF_CHAR(tty)))
 			tty->secondary->data++;
 		if ((L_ECHO(tty) || L_ECHONL(tty)) && (c==10)) {
 			PUTCH(10,tty->write_q);
@@ -502,4 +507,5 @@ void tty_init(void)
 	rs_init();
 	printk("%d virtual consoles\n\r",NR_CONSOLES);
 	printk("%d pty's\n\r",NR_PTYS);
+	lp_init();
 }

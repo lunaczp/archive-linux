@@ -10,11 +10,13 @@
 #include <linux/sched.h>
 #include <linux/kernel.h>
 
+#include <checkpoint.h>
 #include <asm/segment.h>
 #include <asm/io.h>
 
 extern int tty_read(unsigned minor,char * buf,int count,unsigned short flags);
 extern int tty_write(unsigned minor,char * buf,int count);
+extern int lp_write(unsigned minor,char *buf, int count);
 
 typedef (*crw_ptr)(int,unsigned,char *,int,off_t *,unsigned short);
 
@@ -22,6 +24,11 @@ static int rw_ttyx(int rw,unsigned minor,char * buf,int count,off_t * pos, unsig
 {
 	return ((rw==READ)?tty_read(minor,buf,count,flags):
 		tty_write(minor,buf,count));
+}
+
+static int rw_lp(int rw,unsigned minor,char * buf,int count,off_t * pos, unsigned short flags)
+{
+	return ((rw==READ)?-EINVAL:lp_write(minor,buf,count));
 }
 
 static int rw_tty(int rw,unsigned minor,char * buf,int count, off_t * pos, unsigned short flags)
@@ -159,7 +166,7 @@ static crw_ptr crw_table[]={
 	NULL,		/* /dev/hd */
 	rw_ttyx,	/* /dev/ttyx */
 	rw_tty,		/* /dev/tty */
-	NULL,		/* /dev/lp */
+	rw_lp,		/* /dev/lp */
 	NULL};		/* unnamed pipes */
 
 int char_read(struct inode * inode, struct file * filp, char * buf, int count)

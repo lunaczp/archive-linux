@@ -26,7 +26,7 @@ CPP	=cpp -nostdinc -I../../include
 	-c -o $*.o $<
 
 OBJS  = tty_io.o console.o keyboard.o serial.o rs_io.o \
-	tty_ioctl.o pty.o
+	tty_ioctl.o pty.o lp.o
 
 chr_drv.a: $(OBJS)
 	$(AR) rcs chr_drv.a $(OBJS)
@@ -53,9 +53,18 @@ console.s console.o : console.c ../../include/linux/sched.h \
   ../../include/signal.h ../../include/sys/param.h ../../include/sys/time.h \
   ../../include/time.h ../../include/sys/resource.h \
   ../../include/linux/timer.h ../../include/linux/tty.h \
-  ../../include/termios.h ../../include/linux/config.h ../../include/asm/io.h \
-  ../../include/asm/system.h ../../include/asm/segment.h \
-  ../../include/string.h ../../include/errno.h 
+  ../../include/termios.h ../../include/linux/config.h \
+  ../../include/linux/config_rel.h ../../include/linux/config_ver.h \
+  ../../include/asm/io.h ../../include/asm/system.h \
+  ../../include/asm/segment.h ../../include/string.h ../../include/errno.h 
+lp.s lp.o : lp.c ../../include/linux/lp.h ../../include/errno.h \
+  ../../include/linux/kernel.h ../../include/linux/sched.h \
+  ../../include/linux/head.h ../../include/linux/fs.h \
+  ../../include/sys/types.h ../../include/sys/dirent.h ../../include/limits.h \
+  ../../include/linux/mm.h ../../include/signal.h ../../include/sys/param.h \
+  ../../include/sys/time.h ../../include/time.h ../../include/sys/resource.h \
+  ../../include/asm/io.h ../../include/asm/segment.h \
+  ../../include/checkpoint.h 
 pty.s pty.o : pty.c ../../include/linux/tty.h ../../include/termios.h \
   ../../include/sys/types.h ../../include/linux/sched.h \
   ../../include/linux/head.h ../../include/linux/fs.h \

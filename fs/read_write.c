@@ -14,7 +14,11 @@
 #include <linux/minix_fs.h>
 #include <asm/segment.h>
 
-int sys_readdir(unsigned int fd, struct dirent * dirent)
+/*
+ * Count is not yet used: but we'll probably support reading several entries
+ * at once in the future. Use count=1 in the library for future expansions.
+ */
+int sys_readdir(unsigned int fd, struct dirent * dirent, unsigned int count)
 {
 	struct file * file;
 	struct inode * inode;
@@ -22,8 +26,10 @@ int sys_readdir(unsigned int fd, struct dirent * dirent)
 	if (fd >= NR_OPEN || !(file = current->filp[fd]) ||
 	    !(inode = file->f_inode))
 		return -EBADF;
-	if (file->f_op && file->f_op->readdir)
+	if (file->f_op && file->f_op->readdir) {
+		verify_area(dirent, sizeof (*dirent));
 		return file->f_op->readdir(inode,file,dirent);
+	}
 	return -EBADF;
 }
 

@@ -305,7 +305,9 @@ static struct timer_list {
 	long jiffies;
 	void (*fn)();
 	struct timer_list * next;
-} timer_list[TIME_REQUESTS], * next_timer = NULL;
+} timer_list[TIME_REQUESTS] = { { 0, NULL, NULL }, };
+
+static struct timer_list * next_timer = NULL;
 
 void add_timer(long jiffies, void (*fn)(void))
 {
